@@ -257,7 +257,7 @@ export default function TestHome({ onViewChange, status, connected, reminders }:
                             <ListTodo size={24} />
                             <span>Todos & Lists</span>
                         </button>
-                        <button type="button" className="action-card">
+                        <button type="button" className="action-card" onClick={() => onViewChange('chat')}>
                             <MessageCircle size={24} />
                             <span>Text Nova</span>
                         </button>

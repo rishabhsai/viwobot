@@ -119,7 +119,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174", "http://localhost:5175", "http://127.0.0.1:5175"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -274,6 +274,33 @@ async def delete_reminder(reminder_id: str):
     if not deleted:
         raise HTTPException(status_code=404, detail="Reminder not found.")
     return {"status": "deleted", "id": reminder_id}
+
+
+# ─── Memory endpoints ─────────────────────────────────────────────────────────
+
+MEMORIES_FILE = BASE_DIR / "memories.json"
+
+@app.get("/memories", tags=["Memories"])
+async def list_memories():
+    """Return all stored memories."""
+    try:
+        data = json.loads(MEMORIES_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        data = []
+    return {"memories": data}
+
+
+@app.post("/memories", tags=["Memories"], status_code=201)
+async def add_memory(memory: dict):
+    """Add a new memory."""
+    try:
+        data = json.loads(MEMORIES_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        data = []
+    memory["id"] = f"mem-{uuid.uuid4().hex[:8]}"
+    data.append(memory)
+    MEMORIES_FILE.write_text(json.dumps(data, indent=4), encoding="utf-8")
+    return memory
 
 
 # ─── Automation endpoints ──────────────────────────────────────────────────────

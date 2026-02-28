@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { ChevronLeft, Plus, Loader2 } from 'lucide-react'
 import { initialAutomations } from './features/data/mockData'
-import { useNovaBackend } from './useNovaBackend'
 
-export default function TestAutomations({ onBack }: { onBack: () => void }) {
-    const { generateAutomation } = useNovaBackend()
-    const [automations, setAutomations] = useState(initialAutomations)
+interface TestAutomationsProps {
+    onBack: () => void
+    generateAutomation: (prompt: string) => Promise<unknown>
+}
+
+export default function TestAutomations({ onBack, generateAutomation }: TestAutomationsProps) {
+    const [automations, setAutomations] = useState(initialAutomations as Array<{ id: string; title: string; description: string; trigger: string; steps: Array<{ id: string; action: string; target: string }> }>)
     const [prompt, setPrompt] = useState('')
     const [isGenerating, setIsGenerating] = useState(false)
 
     const handleGenerate = async () => {
         if (!prompt.trim() || isGenerating) return
         setIsGenerating(true)
-        const newAutomation = await generateAutomation(prompt)
+        const newAutomation = await generateAutomation(prompt) as { id: string; title: string; description: string; trigger: string; steps: Array<{ id: string; action: string; target: string }> } | null
         setIsGenerating(false)
         if (newAutomation) {
             setAutomations(prev => [newAutomation, ...prev])

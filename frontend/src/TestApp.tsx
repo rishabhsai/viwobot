@@ -4,10 +4,11 @@ import TestIntegrations from './TestIntegrations'
 import TestAutomations from './TestAutomations'
 import TestMemories from './TestMemories'
 import TestLists from './TestLists'
+import TestChat from './TestChat'
 import { useNovaBackend } from './useNovaBackend'
 import './test.css'
 
-export type TestViewMode = 'home' | 'integrations' | 'automations' | 'memories' | 'lists'
+export type TestViewMode = 'home' | 'integrations' | 'automations' | 'memories' | 'lists' | 'chat'
 
 export default function TestApp() {
     const [view, setView] = useState<TestViewMode>('home')
@@ -17,9 +18,10 @@ export default function TestApp() {
 
     let currentView = null
     if (view === 'integrations') currentView = <TestIntegrations onBack={goHome} />
-    else if (view === 'automations') currentView = <TestAutomations onBack={goHome} />
-    else if (view === 'memories') currentView = <TestMemories onBack={goHome} />
+    else if (view === 'automations') currentView = <TestAutomations onBack={goHome} generateAutomation={backend.generateAutomation} />
+    else if (view === 'memories') currentView = <TestMemories onBack={goHome} memories={backend.memories} />
     else if (view === 'lists') currentView = <TestLists onBack={goHome} />
+    else if (view === 'chat') currentView = <TestChat onBack={goHome} chatMessages={backend.chatMessages} sendChat={backend.sendChat} status={backend.status} />
     else currentView = <TestHome onViewChange={setView} status={backend.status} connected={backend.connected} reminders={backend.reminders} />
 
     return (
@@ -74,3 +76,4 @@ export default function TestApp() {
         </div>
     )
 }
+
