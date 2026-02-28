@@ -1,0 +1,246 @@
+/* ════════════════════════════════════════════════════
+   Health Page
+   ════════════════════════════════════════════════════ */
+
+.health-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* ── Watch Card ── */
+
+.watch-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.watch-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--accent-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.watch-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.watch-title {
+    font-size: var(--font-sm);
+    font-weight: var(--weight-semi);
+}
+
+.watch-sub {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+}
+
+.watch-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-xs);
+    font-weight: var(--weight-semi);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.watch-status.connected {
+    background: var(--success-glow);
+    color: var(--success);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--success);
+    animation: pulse 2s infinite;
+}
+
+/* ── Vitals Grid ── */
+
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+}
+
+.vital-card {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.vital-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    font-weight: var(--weight-medium);
+}
+
+.vital-icon.hr {
+    color: #f87171;
+}
+
+.vital-icon.hrv {
+    color: #34d399;
+}
+
+.vital-icon.sleep {
+    color: #818cf8;
+}
+
+.vital-icon.steps {
+    color: #fbbf24;
+}
+
+.vital-value {
+    font-size: var(--font-xl);
+    font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
+}
+
+.vital-value small {
+    font-size: var(--font-xs);
+    font-weight: var(--weight-regular);
+    color: var(--text-muted);
+}
+
+.vital-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+}
+
+.vital-trend.warn {
+    color: var(--accent-warm);
+}
+
+.vital-trend.good {
+    color: var(--success);
+}
+
+/* ── Charts ── */
+
+.chart-card {
+    padding: var(--space-3) var(--space-2);
+}
+
+/* ── Insights ── */
+
+.insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.insight-card {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+}
+
+.insight-card.warn {
+    border-color: rgba(245, 158, 11, 0.25);
+}
+
+.insight-card.info {
+    border-color: rgba(59, 130, 246, 0.25);
+}
+
+.insight-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.insight-icon.warn {
+    background: var(--warning-glow);
+    color: var(--accent-warm);
+}
+
+.insight-icon.info {
+    background: var(--info-glow);
+    color: var(--info);
+}
+
+.insight-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.insight-title {
+    font-size: var(--font-sm);
+    font-weight: var(--weight-semi);
+}
+
+.insight-text {
+    font-size: var(--font-xs);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+}
+
+.insight-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.insight-btn {
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-xs);
+    font-weight: var(--weight-semi);
+    background: var(--bg-glass);
+    color: var(--text-secondary);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.insight-btn:hover {
+    background: var(--bg-glass-hover);
+}
+
+.insight-btn.primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+/* ── Disclaimer ── */
+
+.disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    line-height: var(--leading-relaxed);
+    padding: var(--space-3) var(--space-4);
+    border-color: rgba(99, 102, 241, 0.15);
+}
+
+.disclaimer svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent-primary);
+}

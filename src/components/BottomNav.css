@@ -1,0 +1,104 @@
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    z-index: 100;
+    background: rgba(10, 14, 26, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--border);
+    padding-bottom: var(--safe-bottom);
+}
+
+.nav-items {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: var(--nav-height);
+    padding: 0 var(--space-2);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    transition: all var(--duration-fast) var(--ease-out);
+    position: relative;
+}
+
+.nav-item:hover {
+    color: var(--text-secondary);
+}
+
+.nav-item.active {
+    color: var(--accent-primary);
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-full);
+}
+
+.nav-label {
+    font-size: 0.625rem;
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.01em;
+}
+
+/* ── More Menu ── */
+
+.more-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.more-menu {
+    position: absolute;
+    bottom: calc(var(--nav-height) + 8px);
+    right: var(--space-3);
+    background: var(--bg-card-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2);
+    min-width: 180px;
+    box-shadow: var(--shadow-lg);
+}
+
+.more-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+    font-weight: var(--weight-medium);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.more-item:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+}
+
+.more-item.active {
+    color: var(--accent-primary);
+    background: var(--accent-primary-glow);
+}

@@ -1,0 +1,226 @@
+/* ════════════════════════════════════════════════════
+   Summary Page
+   ════════════════════════════════════════════════════ */
+
+.summary-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* ── Briefing Card ── */
+
+.briefing-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.briefing-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.briefing-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.briefing-icon.morning {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+}
+
+.briefing-icon.evening {
+    background: rgba(129, 140, 248, 0.15);
+    color: #818cf8;
+}
+
+.briefing-title {
+    font-size: var(--font-md);
+    font-weight: var(--weight-semi);
+}
+
+.briefing-sub {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+}
+
+.briefing-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+.briefing-row-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.briefing-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.briefing-section-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-xs);
+    font-weight: var(--weight-semi);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.schedule-item {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    padding-left: var(--space-4);
+    position: relative;
+}
+
+.schedule-item::before {
+    content: '•';
+    position: absolute;
+    left: var(--space-2);
+    color: var(--accent-primary);
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+.todo-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--accent-warm);
+    flex-shrink: 0;
+}
+
+/* ── Recap Stats ── */
+
+.recap-stats {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.recap-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    background: var(--bg-glass);
+}
+
+.recap-stat-value {
+    font-size: var(--font-2xl);
+    font-weight: var(--weight-bold);
+}
+
+.recap-stat-value.success {
+    color: var(--success);
+}
+
+.recap-stat-value.error {
+    color: var(--error);
+}
+
+.recap-stat-label {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+}
+
+.anomalies {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.anomaly-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.anomaly-item svg {
+    color: var(--accent-warm);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ── Trends Grid ── */
+
+.trends-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+}
+
+.trend-card {
+    padding: var(--space-3);
+}
+
+.trend-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    margin-bottom: var(--space-2);
+}
+
+.trend-values {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.trend-main {
+    font-size: var(--font-lg);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+}
+
+.trend-main.warn {
+    color: var(--accent-warm);
+}
+
+.trend-main.good {
+    color: var(--success);
+}
+
+.trend-sub {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+}
+
+.trend-sub.warn {
+    color: var(--accent-warm);
+}
+
+/* ── Chart ── */
+
+.chart-card {
+    padding: var(--space-3) var(--space-2);
+}
