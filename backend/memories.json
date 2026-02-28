@@ -1,0 +1,42 @@
+[
+    {
+        "id": "mem-vishwa-1",
+        "text": "Vishwa dislikes fish and seafood.",
+        "category": "Preferences",
+        "source": "User stated",
+        "updatedAt": "Updated just now",
+        "pinned": true
+    },
+    {
+        "id": "mem-1",
+        "text": "CS 314 lectures are always in the Business Building, Room 2.114.",
+        "category": "Classes",
+        "source": "Syllabus + location tracking",
+        "updatedAt": "Updated 2 months ago",
+        "pinned": false
+    },
+    {
+        "id": "mem-2",
+        "text": "You prefer to study at the Architecture library on weekends.",
+        "category": "Routines",
+        "source": "Location pattern",
+        "updatedAt": "Updated last week",
+        "pinned": false
+    },
+    {
+        "id": "mem-3",
+        "text": "Roommate (Nick) goes to bed early on Thursdays for 8AM lab.",
+        "category": "People",
+        "source": "Conversation + activity history",
+        "updatedAt": "Updated 3 days ago",
+        "pinned": false
+    },
+    {
+        "id": "mem-4",
+        "text": "Hackathon team meetings are usually at 7:30 PM on Discord.",
+        "category": "Projects",
+        "source": "Calendar events",
+        "updatedAt": "Updated yesterday",
+        "pinned": false
+    }
+]

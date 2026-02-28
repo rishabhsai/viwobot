@@ -1,7 +1,24 @@
-import { ChevronLeft, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronLeft, Plus, Loader2 } from 'lucide-react'
 import { initialAutomations } from './features/data/mockData'
+import { useNovaBackend } from './useNovaBackend'
 
 export default function TestAutomations({ onBack }: { onBack: () => void }) {
+    const { generateAutomation } = useNovaBackend()
+    const [automations, setAutomations] = useState(initialAutomations)
+    const [prompt, setPrompt] = useState('')
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    const handleGenerate = async () => {
+        if (!prompt.trim() || isGenerating) return
+        setIsGenerating(true)
+        const newAutomation = await generateAutomation(prompt)
+        setIsGenerating(false)
+        if (newAutomation) {
+            setAutomations(prev => [newAutomation, ...prev])
+            setPrompt('')
+        }
+    }
     return (
         <div className="test-subview-container">
             <header className="integrations-header">
@@ -15,16 +32,31 @@ export default function TestAutomations({ onBack }: { onBack: () => void }) {
             <main className="integrations-content">
                 <section className="integration-section">
                     <div className="create-automation-row">
-                        <input type="text" placeholder="Ask Nova to automate something..." className="create-input" />
-                        <button type="button" className="create-btn">
-                            <Plus size={20} />
+                        <input
+                            type="text"
+                            placeholder={isGenerating ? "Generating..." : "Ask Nova to automate something..."}
+                            className="create-input"
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleGenerate()
+                            }}
+                            disabled={isGenerating}
+                        />
+                        <button
+                            type="button"
+                            className="create-btn"
+                            onClick={handleGenerate}
+                            disabled={isGenerating}
+                        >
+                            {isGenerating ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Plus size={20} />}
                         </button>
                     </div>
                 </section>
 
                 <section className="integration-section">
                     <h3>Your Workflows</h3>
-                    {initialAutomations.map((automation) => (
+                    {automations.map((automation) => (
                         <div key={automation.id} className="workflow-card">
                             <div className="workflow-title-row">
                                 <h4>{automation.title}</h4>

@@ -8,8 +8,8 @@ echo "🚀 Starting Viwo Bot..."
 
 # Kill any existing stray processes on our ports
 echo "🧹 Cleaning up old processes..."
-lsof -ti:8000 | xargs kill -9 2>/dev/null
-lsof -ti:5173 | xargs kill -9 2>/dev/null
+lsof -t -i:8000 -n -P | xargs kill -9 2>/dev/null || true
+lsof -t -i:5173 -n -P | xargs kill -9 2>/dev/null || true
 
 # 1. Start the React Frontend in the background
 echo "🟢 Starting Frontend (http://localhost:5173)..."

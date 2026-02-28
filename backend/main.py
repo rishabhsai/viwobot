@@ -24,6 +24,7 @@ import asyncio
 import json
 import logging
 import os
+import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,6 +56,7 @@ def _init_json(path: Path):
 _init_json(BASE_DIR / "conversation.json")
 _init_json(BASE_DIR / "tutor_sessions.json")
 _init_json(BASE_DIR / "reminders.json")
+_init_json(BASE_DIR / "memories.json")
 
 # ─── Import singletons ────────────────────────────────────────────────────────
 # Import order matters: ws_manager first (no deps), then clients that use it.
@@ -147,6 +149,10 @@ class TutorAnswerRequest(BaseModel):
 class ReminderRequest(BaseModel):
     message: str
     time: str  # ISO 8601 or relative ("30m", "1h", "90s")
+
+
+class AutomationRequest(BaseModel):
+    prompt: str
 
 
 # ─── Chat endpoints ───────────────────────────────────────────────────────────
@@ -268,6 +274,58 @@ async def delete_reminder(reminder_id: str):
     if not deleted:
         raise HTTPException(status_code=404, detail="Reminder not found.")
     return {"status": "deleted", "id": reminder_id}
+
+
+# ─── Automation endpoints ──────────────────────────────────────────────────────
+
+@app.post("/automations/generate", tags=["Automations"])
+async def generate_automation(request: AutomationRequest):
+    """
+    Generate an automation layout from a text prompt using the LLM.
+    """
+    if not request.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt cannot be empty.")
+
+    system_prompt = (
+        "You are an AI assistant that extracts automation workflows from user requests. "
+        "Return ONLY a raw JSON object with no markdown formatting or extra text. "
+        "The object must have exactly these keys: "
+        "'title' (string), 'description' (string), 'trigger' (string), "
+        "and 'steps' (array of objects, each with 'action' string and 'target' string). "
+        f"The user request is: {request.prompt}"
+    )
+
+    loop = asyncio.get_running_loop()
+    # Use gemini.chat_raw to avoid mixing with main conversation history
+    reply_text = await loop.run_in_executor(None, gemini.chat_raw, system_prompt)
+
+    text = reply_text.strip()
+    if text.startswith("```json"):
+        text = text[7:]
+    if text.startswith("```"):
+        text = text[3:]
+    if text.endswith("```"):
+        text = text[:-3]
+    text = text.strip()
+
+    try:
+        data = json.loads(text)
+    except Exception as e:
+        logger.error(f"Failed to parse automation JSON: {e} | Raw text: {reply_text}")
+        raise HTTPException(status_code=500, detail="Failed to parse automation logic.")
+
+    automation_id = uuid.uuid4().hex[:8]
+    steps = data.get("steps", [])
+    for step in steps:
+        step["id"] = uuid.uuid4().hex[:8]
+    
+    return {
+        "id": automation_id,
+        "title": data.get("title", "New Automation Workflow"),
+        "description": data.get("description", ""),
+        "trigger": data.get("trigger", "Manual"),
+        "steps": steps
+    }
 
 
 # ─── WebSocket: live status ───────────────────────────────────────────────────

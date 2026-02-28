@@ -68,5 +68,95 @@
     "role": "model",
     "content": "✨ A friend is coming over, how exciting! If you've got fish, you could make some fantastic fish tacos, a lovely baked lemon herb fish, or even a quick and easy pan-seared fish with a fresh salad. So many delicious options!",
     "timestamp": "2026-02-28T01:23:21.242135+00:00"
+  },
+  {
+    "role": "user",
+    "content": "I have some friends coming over vishwas coming over too and we have some fish potatoes and tomatoes in the fridge should I cook that for dinner",
+    "timestamp": "2026-02-28T01:30:33.502385+00:00"
+  },
+  {
+    "role": "model",
+    "content": "⚠️ API rate limit reached. Please try again later.",
+    "timestamp": "2026-02-28T01:30:33.502385+00:00"
+  },
+  {
+    "role": "user",
+    "content": "I don't know what",
+    "timestamp": "2026-02-28T01:31:16.493964+00:00"
+  },
+  {
+    "role": "model",
+    "content": "⚠️ API rate limit reached. Please try again later.",
+    "timestamp": "2026-02-28T01:31:16.493964+00:00"
+  },
+  {
+    "role": "user",
+    "content": "can you",
+    "timestamp": "2026-02-28T01:35:42.977644+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Sounds like a lovely gathering with Vishwas and friends! Absolutely, fish, potatoes, and tomatoes are perfect for a delicious dinner. You could make a wonderful baked fish with roasted potatoes and a fresh tomato salsa, or even a savory fish and potato gratin. Yum!",
+    "timestamp": "2026-02-28T01:35:42.977644+00:00"
+  },
+  {
+    "role": "user",
+    "content": "hey Nova I have some friends coming over",
+    "timestamp": "2026-02-28T01:36:03.420154+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Hey there! That sounds like fun! Are you looking for some ideas or just letting me know?",
+    "timestamp": "2026-02-28T01:36:03.420154+00:00"
+  },
+  {
+    "role": "user",
+    "content": "I have some fish some potatoes and some tomatoes in",
+    "timestamp": "2026-02-28T01:36:20.209096+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Perfect! With fish, potatoes, and tomatoes, you could whip up a fantastic baked fish with roasted veggies or a delightful fish stew. Both are super easy and delicious for a group!",
+    "timestamp": "2026-02-28T01:36:20.209096+00:00"
+  },
+  {
+    "role": "user",
+    "content": "put this should I see Google",
+    "timestamp": "2026-02-28T01:36:44.735488+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Oh, no need to jump to Google just yet! I can definitely help you brainstorm more ideas with fish, potatoes, and tomatoes right here. What kind of flavors are you in the mood for?",
+    "timestamp": "2026-02-28T01:36:44.735488+00:00"
+  },
+  {
+    "role": "user",
+    "content": "can you can you make me a recipe on how to cook tonight I have some fish some potatoes and tomatoes in the fridge and vishwa is coming over and I want to cook something for him",
+    "timestamp": "2026-02-28T01:42:06.969214+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Absolutely! How about a simple and delicious \"One-Pan Lemon Herb Fish with Roasted Potatoes and Cherry Tomatoes\"? It's easy to make and looks great for company!",
+    "timestamp": "2026-02-28T01:42:06.969214+00:00"
+  },
+  {
+    "role": "user",
+    "content": "can you generate me something to cook today I have some fish potatoes tomatoes and my friend vishwa is coming over",
+    "timestamp": "2026-02-28T01:44:31.201778+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Of course! Let's get cooking for Vishwas! How about a delightful \"Mediterranean Baked Fish with Roasted Lemon Potatoes and Burst Tomatoes\"? It's full of flavor and easy to prepare!",
+    "timestamp": "2026-02-28T01:44:31.201778+00:00"
+  },
+  {
+    "role": "user",
+    "content": "what's good",
+    "timestamp": "2026-02-28T01:47:36.934684+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ It's a fantastic choice because it's light, flavorful, and incredibly easy to prepare for guests! The fish stays tender, the potatoes get crispy, and the tomatoes burst with juicy flavor, all with minimal cleanup.",
+    "timestamp": "2026-02-28T01:47:36.934684+00:00"
   }
 ]

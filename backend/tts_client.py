@@ -52,6 +52,13 @@ def _truncate_for_tts(text: str) -> str:
 
 # Lock ensures only one TTS operation runs at a time (prevents audio overlap)
 _tts_lock = threading.Lock()
+_should_interrupt = False
+
+def interrupt():
+    """Immediately halts any currently streaming ElevenLabs TTS."""
+    global _should_interrupt
+    _should_interrupt = True
+
 
 
 # ─── ElevenLabs streaming TTS ─────────────────────────────────────────────────
@@ -61,6 +68,9 @@ def _speak_elevenlabs(text: str):
     Stream audio from ElevenLabs and play it chunk-by-chunk via sounddevice.
     This starts playback before the full audio is generated (low latency).
     """
+    global _should_interrupt
+    _should_interrupt = False
+    
     try:
         from elevenlabs import ElevenLabs, VoiceSettings
         import sounddevice as sd
@@ -95,6 +105,9 @@ def _speak_elevenlabs(text: str):
             dtype=dtype,
         ) as stream:
             for chunk in audio_stream:
+                if _should_interrupt:
+                    logger.info("ElevenLabs TTS interrupted by user!")
+                    break
                 if chunk:
                     audio_array = np.frombuffer(chunk, dtype=dtype)
                     stream.write(audio_array)
@@ -160,6 +173,8 @@ def speak(text: str, blocking: bool = True):
 
     if blocking:
         _run()
+        return None
     else:
         t = threading.Thread(target=_run, daemon=True)
         t.start()
+        return t

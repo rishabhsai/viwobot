@@ -199,9 +199,18 @@ def _smart_dispatch(
     - How to answer composite questions using the injected user memory
     - What to say back to the user
     """
-    # For now, hardcode the memory the user requested. 
-    # In a full production app, this would be fetched from a database or memories.json
-    memory_context = "- I have NO assignments due today.\n- I prefer to be spoken to casually.\n- Vishwa does not like fish or any seafood.\n- My hackathon submission deadline is in exactly 15 minutes."
+    # Load dynamic memories from memories.json
+    memory_context = ""
+    try:
+        import json
+        memories_path = Path(__file__).parent / "memories.json"
+        if memories_path.exists():
+            with open(memories_path, "r", encoding="utf-8") as f:
+                memories_data = json.load(f)
+                memory_lines = [f"- {m.get('text', '')}" for m in memories_data if m.get("text")]
+                memory_context = "\n".join(memory_lines)
+    except Exception as exc:
+        logger.error("Failed to load memories: %s", exc)
 
     prompt = _DISPATCH_PROMPT.format(transcript=transcript, memory_context=memory_context)
 
@@ -304,49 +313,46 @@ def _generate_chime_wav():
 
 # ─── Recording ────────────────────────────────────────────────────────────────
 
-def _record_audio(max_duration: float = RECORD_MAX_SECONDS, sample_rate: int = 16000) -> bytes:
+def _record_audio(audio_stream, chunk_size: int, max_duration: float = 15.0, silence_timeout: float = 4.0, sample_rate: int = 16000) -> bytes:
     """
-    Record audio from the system mic with a smart Voice Activity Detection (VAD) loop.
+    Record audio from the system mic using the provided audio stream.
     Waits for the user to start speaking, then stops after trailing silence.
     """
-    import pyaudio
     import numpy as np
     import math
-
-    CHUNK = 1024
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-
-    p = pyaudio.PyAudio()
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=sample_rate,
-                    input=True,
-                    frames_per_buffer=CHUNK)
 
     logger.debug("Recording started (dynamic silence detection)...")
     
     frames = []
     
     # Configuration for Voice Activity Detection
-    rms_threshold = 200  # Lowered threshold to ensure we don't miss quiet speakers
-    chunks_per_second = sample_rate / CHUNK
+    rms_threshold = 400  # Tuned to prevent background noise from triggering it
+    chunks_per_second = sample_rate / chunk_size
     
-    # Max chunks of silence BEFORE they start speaking (give them 4 seconds to think)
-    max_silent_chunks_before = int(chunks_per_second * 4.0)
+    # Max chunks of silence BEFORE they start speaking
+    max_silent_chunks_before = int(chunks_per_second * silence_timeout)
     # Max chunks of silence AFTER they finish speaking (cut off after 1.5 seconds)
     max_silent_chunks_after = int(chunks_per_second * 1.5)
+
     
     max_total_chunks = int(chunks_per_second * max_duration)
 
     has_spoken = False
     silent_chunks = 0
 
+    # Clear stale frames from buffer to prevent recording old audio
+    try:
+        available = audio_stream.get_read_available()
+        if available > 0:
+            audio_stream.read(available, exception_on_overflow=False)
+    except Exception:
+        pass
+
     for i in range(max_total_chunks):
         if not _running:
             break
             
-        data = stream.read(CHUNK, exception_on_overflow=False)
+        data = audio_stream.read(chunk_size, exception_on_overflow=False)
         frames.append(data)
         
         # Calculate RMS (volume) of the current chunk
@@ -366,11 +372,7 @@ def _record_audio(max_duration: float = RECORD_MAX_SECONDS, sample_rate: int = 1
         elif has_spoken and silent_chunks > max_silent_chunks_after:
             logger.debug("Trailing silence detected, ending recording.")
             break
-
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-    
+            
     return b''.join(frames)
 
 
@@ -429,48 +431,117 @@ def _wake_word_loop(ws_manager, gemini_client, tts_speak_fn, reminder_engine, tu
     ws_manager.broadcast_sync({"state": "idle"})
 
     try:
+        trigger_recording = False
         while _running:
-            pcm_bytes = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
-            pcm_frame = struct.unpack_from(f"{porcupine.frame_length}h", pcm_bytes)
-            keyword_index = porcupine.process(pcm_frame)
+            try:
+                if not trigger_recording:
+                    pcm_bytes = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
+                    pcm_frame = struct.unpack_from(f"{porcupine.frame_length}h", pcm_bytes)
+                    keyword_index = porcupine.process(pcm_frame)
+                else:
+                    keyword_index = 1  # Force trigger
+                    trigger_recording = False
 
-            if keyword_index >= 0:
-                logger.info("Wake word detected!")
-                ws_manager.broadcast_sync({"state": "listening"})
-                _play_chime()
+                if keyword_index >= 0:
+                    logger.info("Wake word detected!")
+                    ws_manager.broadcast_sync({"state": "listening"})
+                    _play_chime()
+                    
+                    # ─── Custom TTS that supports Wake Word Interruption ───
+                    def custom_tts_speak(text, blocking=True):
+                        if not blocking:
+                            return tts_speak_fn(text, blocking=False)
+                            
+                        # Start background TTS
+                        tts_thread = tts_speak_fn(text, blocking=False)
+                        if not tts_thread:
+                            return
+                            
+                        import tts_client
+                        interrupted = False
+                        
+                        # Listen for the wake word again while TTS is playing
+                        while tts_thread.is_alive() and _running:
+                            try:
+                                # Non-blocking read to prevent PyAudio from hanging on macOS
+                                # when sounddevice is simultaneously playing output.
+                                if audio_stream.get_read_available() >= porcupine.frame_length:
+                                    p_bytes = audio_stream.read(porcupine.frame_length, exception_on_overflow=False)
+                                    p_frame = struct.unpack_from(f"{porcupine.frame_length}h", p_bytes)
+                                    if porcupine.process(p_frame) >= 0:
+                                        logger.info("Wake word detected during TTS playback! Interrupting...")
+                                        tts_client.interrupt()
+                                        interrupted = True
+                                        break
+                                else:
+                                    import time
+                                    time.sleep(0.05)  # Wait briefly for more audio frames
+                            except Exception as exc:
+                                logger.warning("Audio read error during TTS: %s", exc)
+                                import time
+                                time.sleep(0.1)
+                                
+                        tts_thread.join()
+                        if interrupted:
+                            raise InterruptedError("TTS Interrupted")
 
-                # Record user's utterance
-                audio_data = _record_audio(max_duration=RECORD_MAX_SECONDS, sample_rate=16000)
+                    # Record user's utterance
+                    audio_data = _record_audio(audio_stream, porcupine.frame_length, max_duration=15.0, silence_timeout=4.0)
 
-                # Transcribe
-                ws_manager.broadcast_sync({"state": "thinking", "transcript": "..."})
-                transcript = transcribe(audio_data)
+                    # Transcribe
+                    ws_manager.broadcast_sync({"state": "thinking", "transcript": "..."})
+                    transcript = transcribe(audio_data)
 
-                if not transcript:
-                    tts_speak_fn("Sorry, I didn't catch that.", blocking=False)
+                    # If silence or empty transcript, just drop to idle (no error message)
+                    if not transcript:
+                        logger.info("No speech detected after wake word. Dropping to idle.")
+                        ws_manager.broadcast_sync({"state": "idle"})
+                        continue
+
+                    ws_manager.broadcast_sync({"state": "thinking", "transcript": transcript})
+                    logger.info("Transcript: %s", transcript)
+
+                    # Detect intent and route
+                    _route(
+                        transcript,
+                        ws_manager,
+                        gemini_client,
+                        custom_tts_speak,
+                        reminder_engine,
+                        tutor_engine,
+                    )
+
+                    # ── Conversational follow-up mode ──────────────────────────────
+                    # After Nova responds, stay listening for FOLLOW_UP_SECONDS
+                    # so the user can keep talking without saying "Hey Nova" again.
+                    _conversational_follow_up(
+                        ws_manager, gemini_client, custom_tts_speak, reminder_engine, tutor_engine, audio_stream, porcupine.frame_length
+                    )
+                    
                     ws_manager.broadcast_sync({"state": "idle"})
-                    continue
-
-                ws_manager.broadcast_sync({"state": "thinking", "transcript": transcript})
-                logger.info("Transcript: %s", transcript)
-
-                # Detect intent and route
-                _route(
-                    transcript,
-                    ws_manager,
-                    gemini_client,
-                    tts_speak_fn,
-                    reminder_engine,
-                    tutor_engine,
-                )
-
-                # ── Conversational follow-up mode ──────────────────────────────
-                # After Nova responds, stay listening for FOLLOW_UP_SECONDS
-                # so the user can keep talking without saying "Hey Nova" again.
-                _conversational_follow_up(
-                    ws_manager, gemini_client, tts_speak_fn, reminder_engine, tutor_engine
-                )
+                    
+                    # ── Flush Audio Buffer ─────────────────────────────────────────
+                    # Prevent the wake word engine from processing old/stale audio
+                    # that buffered while TTS was playing or during processing.
+                    try:
+                        available = audio_stream.get_read_available()
+                        if available > 0:
+                            audio_stream.read(available, exception_on_overflow=False)
+                    except Exception:
+                        pass
+                    
+            except InterruptedError:
+                logger.info("TTS was interrupted. Looping back to record immediately.")
+                # We already heard the wake word to trigger the interrupt
+                # So we jump straight back into the recording sequence
+                trigger_recording = True
+                
+            except Exception as exc:
+                logger.error("Error in wake word loop: %s", exc)
+                import time
+                time.sleep(0.5)
                 ws_manager.broadcast_sync({"state": "idle"})
+                
     finally:
         audio_stream.stop_stream()
         audio_stream.close()
@@ -480,7 +551,7 @@ def _wake_word_loop(ws_manager, gemini_client, tts_speak_fn, reminder_engine, tu
 
 
 def _conversational_follow_up(
-    ws_manager, gemini_client, tts_speak_fn, reminder_engine, tutor_engine
+    ws_manager, gemini_client, tts_speak_fn, reminder_engine, tutor_engine, audio_stream, chunk_size
 ):
     """
     After Nova finishes speaking, stay in active listening mode for FOLLOW_UP_SECONDS.
@@ -499,7 +570,8 @@ def _conversational_follow_up(
         ws_manager.broadcast_sync({"state": "listening"})
 
         # Record follow-up audio without needing wake word
-        audio_data = _record_audio(max_duration=FOLLOW_UP_SECONDS, sample_rate=16000)
+        # Give them up to 5s to start speaking, but let them speak up to 15s total
+        audio_data = _record_audio(audio_stream, chunk_size, max_duration=15.0, silence_timeout=FOLLOW_UP_SECONDS)
         ws_manager.broadcast_sync({"state": "thinking", "transcript": "..."})
         transcript = transcribe(audio_data)
 

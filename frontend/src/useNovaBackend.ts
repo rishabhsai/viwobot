@@ -51,6 +51,21 @@ export function useNovaBackend() {
         } catch { /* ignore */ }
     }, [])
 
+    const generateAutomation = useCallback(async (prompt: string) => {
+        try {
+            const res = await fetch(`${API}/automations/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            })
+            if (!res.ok) throw new Error('Failed to generate automation')
+            return await res.json()
+        } catch (e) {
+            console.error(e)
+            return null
+        }
+    }, [])
+
     useEffect(() => {
         let reconnectTimeout: ReturnType<typeof setTimeout>
 
@@ -86,5 +101,5 @@ export function useNovaBackend() {
         }
     }, [fetchReminders])
 
-    return { status, connected, reminders, deleteReminder, refetchReminders: fetchReminders }
+    return { status, connected, reminders, deleteReminder, generateAutomation, refetchReminders: fetchReminders }
 }
