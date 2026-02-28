@@ -14,7 +14,7 @@ export type ProactiveItem = {
   }
 }
 
-export type MemoryCategory = 'People' | 'Places' | 'Routines' | 'Preferences'
+export type MemoryCategory = 'People' | 'Places' | 'Routines' | 'Preferences' | 'Classes' | 'Projects'
 
 export type MemoryItem = {
   id: string

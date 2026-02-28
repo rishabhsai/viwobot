@@ -1,0 +1,26 @@
+[
+  {
+    "id": "f2c9818f-f8ff-436f-ac53-6174b498f13b",
+    "message": "This is your reminder to remind yourself!",
+    "fire_at": "2026-02-28T01:11:43.850322+00:00",
+    "created_at": "2026-02-28T00:56:43.850376+00:00"
+  },
+  {
+    "id": "338187c9-81a7-48b0-a93c-ee708e0a73d7",
+    "message": "Please clarify what you'd like to check up on.",
+    "fire_at": "2026-02-28T01:12:38.734115+00:00",
+    "created_at": "2026-02-28T00:57:38.734195+00:00"
+  },
+  {
+    "id": "3a19bb96-d0ed-40f8-9a1c-67da60fb856d",
+    "message": "Check up on your Canvas submissions and last assignments.",
+    "fire_at": "2026-02-28T01:12:59.820180+00:00",
+    "created_at": "2026-02-28T00:57:59.820254+00:00"
+  },
+  {
+    "id": "054b2f65-998c-4b61-a1c0-79b2e56200ae",
+    "message": "Hackathon submission deadline!",
+    "fire_at": "2026-02-28T01:21:45.279670+00:00",
+    "created_at": "2026-02-28T01:06:45.279701+00:00"
+  }
+]

@@ -1,0 +1,43 @@
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ─── Virtual environments ─────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ─── Environment / secrets ────────────────────────────────────────────────────
+.env
+*.env.local
+
+# ─── Runtime data files (auto-generated) ─────────────────────────────────────
+# Uncomment if you don't want to track chat/session history in git
+# conversation.json
+# tutor_sessions.json
+# reminders.json
+
+# ─── Audio ────────────────────────────────────────────────────────────────────
+*.wav
+*.mp3
+
+# ─── Porcupine model files ────────────────────────────────────────────────────
+*.ppn
+*.pv
+
+# ─── Whisper model cache ──────────────────────────────────────────────────────
+~/.cache/whisper/
+
+# ─── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp

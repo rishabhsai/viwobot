@@ -1,0 +1,54 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Viwo Bot Backend — Python Dependencies
+# Pin exact versions for reproducible hackathon builds.
+# Install: pip install -r requirements.txt
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+websockets==14.1
+python-multipart==0.0.20
+
+# ── Config ─────────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+pydantic==2.10.4
+
+# ── AI Brain: OpenClaw ─────────────────────────────────────────────────────────
+# OpenClaw is a Node.js CLI package — NOT a pip package.
+# Install separately BEFORE running the backend:
+#   npm install -g openclaw@latest
+#   openclaw onboard --install-daemon   ← choose your model (Claude/OpenAI/Gemini/etc.)
+# See README.md §Prerequisites for full setup steps.
+
+# ── ElevenLabs TTS ─────────────────────────────────────────────────────────────
+elevenlabs==1.13.0
+
+# ── Offline TTS fallback ───────────────────────────────────────────────────────
+pyttsx3==2.98
+
+# ── Audio I/O ──────────────────────────────────────────────────────────────────
+sounddevice==0.5.1
+soundfile==0.12.1
+numpy==2.2.2
+pyaudio==0.2.14
+
+# ── Wake word detection ────────────────────────────────────────────────────────
+pvporcupine==4.0.0
+
+# ── Speech-to-Text ─────────────────────────────────────────────────────────────
+SpeechRecognition==3.14.0
+
+# ── Local Whisper STT (optional — large download ~150 MB for "base" model)
+# Uncomment if you want offline STT:
+# openai-whisper==20240930
+
+# ── Scheduler ──────────────────────────────────────────────────────────────────
+APScheduler==3.11.0
+
+# ── HTTP client (used in tests) ────────────────────────────────────────────────
+httpx==0.28.1
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.25.2
