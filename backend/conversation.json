@@ -48,5 +48,25 @@
     "role": "model",
     "content": "✨ Okay, I got it! I'd be happy to help with that. To adjust your picture, could you tell me a bit more about what you'd like to change? Also, how can you share the image with me?",
     "timestamp": "2026-02-28T01:07:45.671740+00:00"
+  },
+  {
+    "role": "user",
+    "content": "my friend request coming over I have chicken Tomatoes potatoes please",
+    "timestamp": "2026-02-28T01:21:01.241549+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ Ooh, fun! With chicken, tomatoes, and potatoes, you could whip up a delicious roasted chicken with seasoned veggies, a hearty chicken stew, or even some tasty chicken and potato skewers!",
+    "timestamp": "2026-02-28T01:21:01.241549+00:00"
+  },
+  {
+    "role": "user",
+    "content": "my friend request coming over I have some fish in the fridge but I don't know if you like that",
+    "timestamp": "2026-02-28T01:23:21.242135+00:00"
+  },
+  {
+    "role": "model",
+    "content": "✨ A friend is coming over, how exciting! If you've got fish, you could make some fantastic fish tacos, a lovely baked lemon herb fish, or even a quick and easy pan-seared fish with a fresh salad. So many delicious options!",
+    "timestamp": "2026-02-28T01:23:21.242135+00:00"
   }
 ]

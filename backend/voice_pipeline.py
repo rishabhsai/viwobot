@@ -44,8 +44,12 @@ logger = logging.getLogger(__name__)
 # Path to chime WAV played on wake
 CHIME_PATH = Path(__file__).parent / "chime.wav"
 
-# How many seconds of audio to record after wake word
-RECORD_SECONDS = 10
+# Maximum seconds to record if the user never stops talking
+RECORD_MAX_SECONDS = 15
+# Seconds of silence required to consider the user "done speaking"
+SILENCE_THRESHOLD_SECONDS = 1.0
+# RMS volume threshold to classify audio as "silence" (tune if needed)
+SILENCE_RMS_THRESHOLD = 500
 
 # Conversational follow-up mode — after Nova speaks, stay listening this long
 FOLLOW_UP_SECONDS = 5
@@ -150,8 +154,8 @@ SAY:<your smart, contextual response. If checking memory, state the answer conve
 
 IMPORTANT RULES: 
 1. Respond ONLY with the structured format above, no markdown.
-2. Be extremely smart and conversational. Do not sound like a robot taking exact phrases. If they ask "do I have assignments and also remind me to eat in 15m", use ACTION:remind, but the SAY block should fluidly handle BOTH intents: "I checked your schedule and you actually have no assignments due! So I'll definitely remind you to eat in 15 minutes. Do you want me to suggest what to cook?"
-3. Treat the Memory/Context as absolute ground truth. If a user suggests something that conflicts with a memory (e.g. they want to cook fish for Vishwa), you MUST point out the conflict ("Oh wait, Vishwa doesn't like fish!") and proactively suggest an alternative ("Why don't I order you some chicken instead?").
+2. Be extremely smart and conversational. Do not sound like a robot taking exact phrases. If they ask "do I have assignments and also remind me to eat in 15m", use ACTION:remind, but the SAY block should fluidly handle BOTH intents.
+3. 🚨 CRITICAL MEMORY CHECK 🚨: Before responding, you MUST evaluate the user's request against every single memory listed above. If the user suggests an action that violates a memory (for example, suggesting to cook fish or seafood when Vishwa is coming over), you MUST immediately reject the idea based on the memory ("Oh wait, Vishwa doesn't like fish!") and proactively suggest a specific alternative ("Why don't I order you some chicken instead?").
 """
 
 
@@ -300,20 +304,74 @@ def _generate_chime_wav():
 
 # ─── Recording ────────────────────────────────────────────────────────────────
 
-def _record_audio(duration: float = RECORD_SECONDS, sample_rate: int = 16000) -> bytes:
-    """Record audio from the system mic for `duration` seconds. Returns raw PCM bytes."""
-    import sounddevice as sd
+def _record_audio(max_duration: float = RECORD_MAX_SECONDS, sample_rate: int = 16000) -> bytes:
+    """
+    Record audio from the system mic with a smart Voice Activity Detection (VAD) loop.
+    Waits for the user to start speaking, then stops after trailing silence.
+    """
+    import pyaudio
     import numpy as np
+    import math
 
-    logger.debug("Recording %.1f seconds of audio...", duration)
-    audio = sd.rec(
-        int(duration * sample_rate),
-        samplerate=sample_rate,
-        channels=1,
-        dtype="int16",
-    )
-    sd.wait()
-    return audio.tobytes()
+    CHUNK = 1024
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+
+    p = pyaudio.PyAudio()
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=sample_rate,
+                    input=True,
+                    frames_per_buffer=CHUNK)
+
+    logger.debug("Recording started (dynamic silence detection)...")
+    
+    frames = []
+    
+    # Configuration for Voice Activity Detection
+    rms_threshold = 200  # Lowered threshold to ensure we don't miss quiet speakers
+    chunks_per_second = sample_rate / CHUNK
+    
+    # Max chunks of silence BEFORE they start speaking (give them 4 seconds to think)
+    max_silent_chunks_before = int(chunks_per_second * 4.0)
+    # Max chunks of silence AFTER they finish speaking (cut off after 1.5 seconds)
+    max_silent_chunks_after = int(chunks_per_second * 1.5)
+    
+    max_total_chunks = int(chunks_per_second * max_duration)
+
+    has_spoken = False
+    silent_chunks = 0
+
+    for i in range(max_total_chunks):
+        if not _running:
+            break
+            
+        data = stream.read(CHUNK, exception_on_overflow=False)
+        frames.append(data)
+        
+        # Calculate RMS (volume) of the current chunk
+        audio_data = np.frombuffer(data, dtype=np.int16)
+        rms = math.sqrt(np.mean(np.square(audio_data, dtype=np.float64)))
+        
+        if rms > rms_threshold:
+            has_spoken = True
+            silent_chunks = 0
+        else:
+            silent_chunks += 1
+            
+        # Stopping conditions
+        if not has_spoken and silent_chunks > max_silent_chunks_before:
+            logger.debug("No speech detected, stopping recording early.")
+            break
+        elif has_spoken and silent_chunks > max_silent_chunks_after:
+            logger.debug("Trailing silence detected, ending recording.")
+            break
+
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    
+    return b''.join(frames)
 
 
 # ─── Wake word loop ───────────────────────────────────────────────────────────
@@ -382,7 +440,7 @@ def _wake_word_loop(ws_manager, gemini_client, tts_speak_fn, reminder_engine, tu
                 _play_chime()
 
                 # Record user's utterance
-                audio_data = _record_audio(duration=RECORD_SECONDS, sample_rate=16000)
+                audio_data = _record_audio(max_duration=RECORD_MAX_SECONDS, sample_rate=16000)
 
                 # Transcribe
                 ws_manager.broadcast_sync({"state": "thinking", "transcript": "..."})
@@ -441,7 +499,7 @@ def _conversational_follow_up(
         ws_manager.broadcast_sync({"state": "listening"})
 
         # Record follow-up audio without needing wake word
-        audio_data = _record_audio(duration=FOLLOW_UP_SECONDS, sample_rate=16000)
+        audio_data = _record_audio(max_duration=FOLLOW_UP_SECONDS, sample_rate=16000)
         ws_manager.broadcast_sync({"state": "thinking", "transcript": "..."})
         transcript = transcribe(audio_data)
 
