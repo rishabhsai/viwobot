@@ -1,5 +1,5 @@
 import { ChevronLeft, Plus } from 'lucide-react'
-import { initialAutomations } from '../features/data/mockData'
+import { initialAutomations } from './features/data/mockData'
 
 export default function TestAutomations({ onBack }: { onBack: () => void }) {
     return (

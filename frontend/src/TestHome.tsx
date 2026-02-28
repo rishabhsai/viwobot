@@ -10,7 +10,7 @@ import {
     ChevronRight
 } from 'lucide-react'
 import { type TestViewMode } from './TestApp'
-import { initialProactiveItems } from '../features/data/mockData'
+import { initialProactiveItems } from './features/data/mockData'
 
 export default function TestHome({ onViewChange }: { onViewChange: (view: TestViewMode) => void }) {
 

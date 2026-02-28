@@ -1,5 +1,5 @@
 import { ChevronLeft, Circle, CheckCircle } from 'lucide-react'
-import { initialListGroups } from '../features/data/mockData'
+import { initialListGroups } from './features/data/mockData'
 
 export default function TestLists({ onBack }: { onBack: () => void }) {
     return (

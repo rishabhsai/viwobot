@@ -1,5 +1,5 @@
 import { ChevronLeft, Pin } from 'lucide-react'
-import { initialMemories } from '../features/data/mockData'
+import { initialMemories } from './features/data/mockData'
 
 export default function TestMemories({ onBack }: { onBack: () => void }) {
     return (
